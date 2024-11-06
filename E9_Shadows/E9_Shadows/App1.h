@@ -32,6 +32,7 @@ private:
 	AModel* model;
 	ShadowShader* shadowShader;
 	DepthShader* depthShader;
+	OrthoMesh* orthoMesh;
 
 	ShadowMap* shadowMap;
 };
