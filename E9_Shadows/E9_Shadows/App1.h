@@ -34,6 +34,11 @@ private:
 	DepthShader* depthShader;
 	OrthoMesh* orthoMesh;
 
+	Timer* time;
+
+	CubeMesh* cubeMesh;
+	SphereMesh* sphereMesh;
+
 	ShadowMap* shadowMap;
 };
 

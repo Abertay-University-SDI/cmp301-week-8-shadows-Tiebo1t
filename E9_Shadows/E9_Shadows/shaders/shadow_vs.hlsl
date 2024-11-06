@@ -6,6 +6,8 @@ cbuffer MatrixBuffer : register(b0)
 	matrix projectionMatrix;
 	matrix lightViewMatrix;
 	matrix lightProjectionMatrix;
+    float delta;
+    float3 padding;
 };
 
 struct InputType
@@ -28,11 +30,15 @@ OutputType main(InputType input)
 {
     OutputType output;
 
+    float speed = 5;
+
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
+    //output.position.x = delta * speed;
+
 	// Calculate the position of the vertice as viewed by the light source.
     output.lightViewPos = mul(input.position, worldMatrix);
     output.lightViewPos = mul(output.lightViewPos, lightViewMatrix);
