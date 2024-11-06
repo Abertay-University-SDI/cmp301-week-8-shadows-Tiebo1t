@@ -29,14 +29,17 @@ private:
 	PlaneMesh* mesh;
 
 	Light* light;
+	Light* light2;
 	AModel* model;
 	ShadowShader* shadowShader;
 	DepthShader* depthShader;
 	OrthoMesh* orthoMesh;
+	OrthoMesh* orthoMesh2;
 
 	Timer* time;
 
 	CubeMesh* cubeMesh;
+	SphereMesh* sphereMesh2;
 	SphereMesh* sphereMesh;
 
 	ShadowMap* shadowMap;

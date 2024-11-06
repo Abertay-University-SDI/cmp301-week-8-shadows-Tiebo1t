@@ -16,6 +16,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	mesh = new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext());
 	cubeMesh = new CubeMesh(renderer->getDevice(), renderer->getDeviceContext());
 	sphereMesh = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
+	sphereMesh2 = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	model = new AModel(renderer->getDevice(), "res/teapot.obj");
 	textureMgr->loadTexture(L"brick", L"res/brick1.dds");
 
@@ -23,7 +24,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
 	depthShader = new DepthShader(renderer->getDevice(), hwnd);
 	shadowShader = new ShadowShader(renderer->getDevice(), hwnd);
-	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 2, screenHeight / 2, screenWidth / 2, screenHeight / 2);
+	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 2, screenHeight / 2, 0, 0);
+	orthoMesh2 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 2, screenHeight / 2, screenWidth / 2, screenHeight / 2);
 
 	// Variables for defining shadow map
 	int shadowmapWidth = 1024;
@@ -36,11 +38,18 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	// Configure directional light
 	light = new Light();
-	light->setAmbientColour(0.3f, 0.3f, 0.3f, 1.0f);
+	light->setAmbientColour(1, 0, 0, 1.0f);
 	light->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	light->setDirection(0.0f, -0.7f, 0.7f);
 	light->setPosition(0.f, 0.f, -10.f);
 	light->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
+
+	light2 = new Light();
+	light2->setAmbientColour(0, 1, 0, 1.0f);
+	light2->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	light2->setDirection(0.0f, -0.7f, 0.7f);
+	light2->setPosition(0.f, 0.f, 20.f);
+	light2->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
 
 }
 
@@ -150,13 +159,19 @@ void App1::finalPass()
 	shadowShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), shadowMap->getDepthMapSRV(), light, timer->getTime());
 	shadowShader->render(renderer->getDeviceContext(), model->getIndexCount());
 
-
-	worldMatrix = XMMatrixTranslation(10, 2, 0);
-	worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixTranslation(0, 0, -10);
 
 	sphereMesh->sendData(renderer->getDeviceContext());
 	shadowShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), shadowMap->getDepthMapSRV(), light, timer->getTime());
 	shadowShader->render(renderer->getDeviceContext(), sphereMesh->getIndexCount());
+
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixTranslation(0, 0, 20);
+
+	sphereMesh2->sendData(renderer->getDeviceContext());
+	shadowShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), shadowMap->getDepthMapSRV(), light, timer->getTime());
+	shadowShader->render(renderer->getDeviceContext(), sphereMesh2->getIndexCount());
 
 	renderer->setZBuffer(false);
 	XMMATRIX orthoMatrix = renderer->getOrthoMatrix();
@@ -165,6 +180,10 @@ void App1::finalPass()
 	orthoMesh->sendData(renderer->getDeviceContext());
 	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, shadowMap->getDepthMapSRV());
 	textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
+
+	orthoMesh2->sendData(renderer->getDeviceContext());
+	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, shadowMap->getDepthMapSRV());
+	textureShader->render(renderer->getDeviceContext(), orthoMesh2->getIndexCount());
 	renderer->setZBuffer(true);
 
 	gui();
